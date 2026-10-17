@@ -1,0 +1,17 @@
+# AI service domain rules
+# Rule fragment only; not a complete VPN configuration.
+payload:
+  # ChatGPT / Codex
+  - DOMAIN-SUFFIX,chatgpt.com
+  - DOMAIN-SUFFIX,openai.com
+  - DOMAIN-SUFFIX,oaistatic.com
+  - DOMAIN-SUFFIX,oaiusercontent.com
+  # Claude / Claude Code
+  - DOMAIN-SUFFIX,claude.ai
+  - DOMAIN-SUFFIX,anthropic.com
+  # Gemini
+  - DOMAIN,gemini.google.com
+  # GitHub Copilot
+  - DOMAIN-SUFFIX,githubcopilot.com
+  # Cursor
+  - DOMAIN-SUFFIX,cursor.com
