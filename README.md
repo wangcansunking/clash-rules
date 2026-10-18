@@ -1,38 +1,61 @@
-# AI VPN 分流规则
+# AI 与常用国外网站代理规则
 
-按已提供的域名清单维护 ChatGPT / Codex、Claude、Gemini、GitHub Copilot 和 Cursor 规则。文件为静态规则源；修改并推送 `dist` 分支后，客户端可按自己的更新周期重新获取。没有自动抓取第三方规则的任务。
+面向 Clash / Mihomo 的域名代理清单，覆盖常见 AI 工具和 Google、YouTube、社交、资讯、开发及流媒体网站。不是节点订阅，也不是完整 VPN 配置。
 
-## 远程地址
+## 远程规则地址
 
-- Clash 规则片段： https://raw.githubusercontent.com/wangcansunking/clash-rules/dist/ai-rules.yaml
-- Clash / Mihomo classical Rule Provider： https://raw.githubusercontent.com/wangcansunking/clash-rules/dist/ai-provider.yaml
+| 格式 | URL |
+| --- | --- |
+| Clash `rules:` 规则片段（含 `PROXY` 策略） | https://raw.githubusercontent.com/wangcansunking/clash-rules/dist/proxy-rules.yaml |
+| Clash / Mihomo classical `payload:` Rule Provider（不含策略） | https://raw.githubusercontent.com/wangcansunking/clash-rules/dist/proxy-provider.yaml |
 
-客户端「我们所向往的」的远程规则格式尚未确认。只有确认它接受 `rules:` YAML 时才使用第一个地址；如果支持 classical Rule Provider，使用第二个地址。解析成功和实际命中仍需在客户端验证。这些文件不是包含节点的完整订阅配置。
+旧地址 `ai-rules.yaml`、`ai-provider.yaml` 保留，内容分别与上述文件完全一致，**现在也包含常用国外网站规则**，无需更换已有 URL。
 
-## Clash 规则片段
+客户端「我们所向往的」的远程规则格式尚未确认；请按客户端支持的格式选择地址。`rules:` 与 `payload:` 不能互换。`PROXY` 必须对应已有策略或代理组，否则需要在自己的配置中替换/映射。规则要放在原有 `MATCH` 或会提前命中的宽泛规则之前。
 
-`ai-rules.yaml` 使用 `PROXY` 作为目标策略。导入前确认客户端有同名策略或代理组，否则在自己的配置中映射为真实策略名。规则应放在已有的兜底 MATCH 或其他会提前命中的宽泛规则之前。文件没有 MATCH，不改变其余流量的去向。
+## Rule Provider 配置示例
 
-## Clash / Mihomo Rule Provider
-
-在现有配置中合并以下内容，不要覆盖已有代理组或规则。将 `PROXY` 改为实际代理组名。
+将下列片段合并进现有配置，保留已有节点、代理组和其他规则，把 `PROXY` 替换为实际代理组名：
 
 ```yaml
 rule-providers:
-  ai:
+  overseas:
     type: http
     behavior: classical
     format: yaml
-    url: https://raw.githubusercontent.com/wangcansunking/clash-rules/dist/ai-provider.yaml
-    path: ./ruleset/ai.yaml
+    url: https://raw.githubusercontent.com/wangcansunking/clash-rules/dist/proxy-provider.yaml
+    path: ./ruleset/overseas.yaml
     interval: 86400
 rules:
-  - RULE-SET,ai,PROXY
-  # 在此保留原有规则和兜底规则
+  - RULE-SET,overseas,PROXY
+  # 后面保留原有规则及兜底规则
 ```
 
-## 范围与验证
+## 覆盖范围
 
-本清单覆盖用户提供的 9 条域名规则，不保证涵盖各服务所有认证、下载、CDN 或未来新增的域名。Gemini 仅匹配 `gemini.google.com`，不会将整个 Google 域名加入代理。Copilot 也不会将整个 GitHub 加入代理。
+完整域名清单及服务分组见 [domains.json](domains.json)。当前包括：
 
-导入后打开对应服务，在客户端连接日志中检查目标域名、命中规则及最终策略。YAML 结构验证不能证明该客户端支持此格式，也不能保证节点所在地区满足服务要求。
+- AI 聊天、编程、搜索及推理：ChatGPT / Codex / Sora、Claude、Gemini、Copilot、Cursor、Windsurf、Aider、Continue、Tabnine、Sourcegraph、Replit、Bolt、v0、Lovable、Perplexity、Poe、Grok、Meta AI、Mistral、DeepSeek、通义、Kimi、豆包、元宝、文心、智谱、MiniMax、Hugging Face、Replicate、Together、Fireworks、Groq、Cerebras、OpenRouter、DeepInfra、Cohere、AI21。
+- AI 图像、音视频及效率工具：Midjourney、Leonardo、Ideogram、Playground、Stability、Clipdrop、fal、Civitai、Runway、Pika、Luma、可灵、海螺、HeyGen、Synthesia、ElevenLabs、Suno、Udio、NotebookLM、Gamma、Beautiful.ai、Otter、Fireflies、Jasper、Copy.ai、Writesonic、Character.AI。
+- Google 搜索、Gmail、Drive、Photos、Maps、Google API 与常见静态资源；YouTube、YouTube Music 和视频资源。
+- Facebook、Instagram、Threads、WhatsApp、X / Twitter、Telegram、Signal、Discord、Reddit、Quora、Pinterest、Tumblr。
+- Wikipedia / Wikimedia、BBC、纽约时报、华尔街日报、Bloomberg、Reuters、Guardian、Economist、FT、DW、RFI、VOA、Medium、Substack。
+- GitHub、GitLab、Bitbucket、Docker、Stack Overflow、npm、Yarn、Vercel、Netlify、Read the Docs、Internet Archive。
+- Netflix、Twitch、Vimeo、Dailymotion、Spotify、SoundCloud、Proton、DuckDuckGo、Dropbox、Notion、Figma、Canva。
+
+所有匹配到的域名（包括国内 AI 服务及未被屏蔽的国外服务）都按代理策略处理。Google 规则同时包含广告/统计域名，以支持相关资源；若有去广告规则，请放在本规则集前面。GitHub Pages、Vercel、Netlify 等平台包含用户托管站点，匹配范围也包括这些站点。
+
+这是人工维护的常用网站清单，不是“全球所有 AI 工具/所有被墙网站”的完整数据库，也不代表每个所列网站在每个地区都被屏蔽。Google 国家域名目前仅列出常用版本。第三方登录、CDN 或新增域名可能需要补充；流媒体和 AI 服务能否使用也取决于节点地区及服务自身限制。
+
+## 维护和验证
+
+仅编辑 `domains.json`，然后运行：
+
+```sh
+python3 scripts/generate.py
+python3 scripts/generate.py --check
+```
+
+生成器仅使用 Python 标准库，检查域名格式和重复项，并同步四个 YAML 文件。文件使用域名后缀匹配；没有 IP 规则或 `MATCH`，其他流量继续遵循客户端原有配置。规则中的业务域名不是对网站实时可用性的承诺。
+
+推送到 `dist` 后，客户端按自身更新周期获取；也可手动刷新远程规则。仓库不自动抓取第三方数据。导入后在客户端连接日志中检查访问域名、命中规则及最终策略。当前已验证生成一致性、YAML 结构和代表性域名匹配；未在实际 VPN 客户端中验证兼容性及连接。
